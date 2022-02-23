@@ -24,4 +24,28 @@
 // return bytes4(msg.data);
 // }
 
+
+//    function transferWithData(
+//         address to,
+//         uint256 value,
+//         bytes memory data
+//     ) external 
+//     // isValidCertificate(data) 
+//     {
+//         console.logBytes(msg.data);
+//         bytes memory msgData = msg.data;
+//         bytes4 funId;
+//         bytes32 arg1;
+//         bytes32 arg2;
+//         assembly{
+//             funId:= mload(add(msgData,32))
+//             arg1 := mload(add(msgData,36))
+//             arg2 := mload(add(msgData,68))
+//         }
+//         console.logBytes4(funId);
+//         console.logBytes32(arg1);
+//         console.logUint(uint256(arg2));
+//         // transfer(to,value);
+//     }
+
 // }

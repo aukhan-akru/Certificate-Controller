@@ -34,17 +34,17 @@ console.log("before--->",bal1)
  let args = [
     /*  funcId: */await _contract.methods.getSelector("transferWithData(address,uint256,bytes)").call(),
     /* to: */accounts[3],
-    /* value: */web3.utils.toWei("1"),
+    /* value: */web3.utils.toWei("11"),
     /* exDate: */Math.ceil((Date.now()/1000))+600, //10 min
     /* nonce: */nonce
  ]
 
   console.log(args)
-  let message  = await _contract.methods.methodHash(...args).call();
-  console.log(""+message)
-   let  sig = await web3.eth.personal.sign(""+message,accounts[0])
-  console.log("sig:",sig)
-  let res = await _contract.methods.transferWithData(accounts[3],web3.utils.toWei("1"),sig,""+message,nonce).send({from:accounts[2]})
+  let certificate  = await _contract.methods.methodHash(...args).call();
+  console.log(""+certificate)
+   let  data = await web3.eth.personal.sign(""+certificate,accounts[0])
+  console.log("sig:",data)
+  let res = await _contract.methods.transferWithData(accounts[3],web3.utils.toWei("11"),data).send({from:accounts[2]})
   console.log(res)
   let bal = (await _contract.methods.balanceOf(accounts[3]).call()).toString()
 console.log("after--->",bal)

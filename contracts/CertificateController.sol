@@ -89,15 +89,13 @@ contract CertificateController {
    */
    function _checkCertificate(bytes memory data, bytes32 metaHash,uint256 _nonce) internal returns(bool) { // Comments to avoid compilation warnings for unused variables.
      if(data.length > 0 ){
- address signer = getSigner(metaHash, data);
+        address signer = getSigner(metaHash, data);
         //make sure signer doesn't come back as 0x0
         require(signer != address(0),"signer can not be zero address");
         // console.logAddress(signer);
         require(_certificateSigners[signer],"signer not authorized");
         require(_nonce == nonce[msg.sender],"nonce not match");
         nonce[msg.sender]++;
-
-
        return true;
      } else {
        return false;
@@ -113,7 +111,6 @@ contract CertificateController {
       return keccak256(abi.encodePacked(address(this),funcSig, _to, _value,exDate, _nonce));
 
     }
-
 
  function getSigner(bytes32 _hash, bytes memory _signature)
         private
@@ -151,8 +148,4 @@ contract CertificateController {
                 );
         }
     }
-
-
-
-
 }
