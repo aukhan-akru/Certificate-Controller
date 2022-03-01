@@ -1,10 +1,17 @@
-
-// SPDX-License-Identifier: UNLICENSED
+/*
+ * This code has not been reviewed.
+ * Do not use or deploy this code before reviewing it personally first.
+ */
+//  SPDX-License-Identifier: un-licence
 pragma solidity ^0.8.0;
-import "hardhat/console.sol";
 
 
-contract CertificateController {
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
+  import "hardhat/console.sol";
+
+// CertificateController comment...
+contract CertificateController{
 
   // If set to 'true', the certificate control is activated
   bool _certificateControllerActivated;
@@ -13,7 +20,7 @@ contract CertificateController {
   mapping(address => bool) internal _certificateSigners;
 
   // A nonce used to ensure a certificate can be used only once
-  mapping(address => uint256) private nonce;
+  mapping(address => uint256) private _checkCount;
 
   event Checked(address sender);
 
@@ -22,15 +29,25 @@ contract CertificateController {
     _certificateControllerActivated = activated;
   }
 
+  event Log(bytes32 hash);
+
   /**
    * @dev Modifier to protect methods with certificate control
    */
-  modifier isValidCertificate(bytes memory data, bytes32 metaHash,uint256 _nonce) {
-
+  modifier isValidCertificate(bytes memory data) {
+        bytes memory msgData = msg.data;
+        bytes32 amount;
+        bytes4 funcId;
+        assembly{
+            funcId := mload(add(msgData,32))
+            amount := mload(add(msgData,68))
+        }
+       
+       
     if(_certificateControllerActivated) {
-       require(_certificateSigners[msg.sender] ||  _checkCertificate(data, metaHash,_nonce), "A3"); // Transfer Blocked - Sender lockup period not ended
+      require( _checkCertificate(data, uint256(amount), funcId), "54"); // 0x54	transfers halted (contract paused)
 
-      nonce[msg.sender] += 1; // Increment sender check nonce
+      _checkCount[msg.sender] += 1; // Increment sender check count
 
       emit Checked(msg.sender);
     }
@@ -38,14 +55,27 @@ contract CertificateController {
     _;
   }
 
+  /**
+   * @dev Modifier to protect methods with certificate control
+   */
+  /* modifier isValidPayableCertificate(bytes memory data) {
+
+    require(_certificateSigners[msg.sender] || _checkCertificate(data, msg.value, 0x00000000), "54"); // 0x54	transfers halted (contract paused)
+
+    _checkCount[msg.sender] += 1; // Increment sender check count
+
+    emit Checked(msg.sender);
+    _;
+  } */
+
 
   /**
    * @dev Get number of transations already sent to this contract by the sender
-   * @param sender Address whom to check the nonce of.
+   * @param sender Address whom to check the counter of.
    * @return uint256 Number of transaction already sent to this contract.
    */
-  function checkNonce(address sender) public view returns (uint256) {
-    return nonce[sender];
+  function checkNonce(address sender) external view returns (uint256) {
+    return _checkCount[sender];
   }
 
   /**
@@ -67,7 +97,6 @@ contract CertificateController {
     _certificateSigners[operator] = authorized;
   }
 
-
   /**
    * @dev Get activation status of certificate controller.
    */
@@ -87,65 +116,132 @@ contract CertificateController {
    * @dev Checks if a certificate is correct
    * @param data Certificate to control
    */
-   function _checkCertificate(bytes memory data, bytes32 metaHash,uint256 _nonce) internal returns(bool) { // Comments to avoid compilation warnings for unused variables.
-     if(data.length > 0 ){
-        address signer = getSigner(metaHash, data);
-        //make sure signer doesn't come back as 0x0
-        require(signer != address(0),"signer can not be zero address");
-        // console.logAddress(signer);
-        require(_certificateSigners[signer],"signer not authorized");
-        require(_nonce == nonce[msg.sender],"nonce not match");
-        nonce[msg.sender]++;
-       return true;
-     } else {
-       return false;
-     }
-   }
+  function _checkCertificate(
+    bytes memory data,
+    uint256 amount,
+    bytes4 functionID
+  )
+    internal
+    
+    returns(bool)
+  {
+    uint256 counter = _checkCount[msg.sender];
+
+    uint256 e;
+    bytes32 r;
+    bytes32 s;
+    uint8 v;
+
+    // Certificate should be 98 bytes long
+    // if (data.length != 98) {
+    //   return false;
+    // }
+
+    // Extract certificate information and expiration time from payload
+    assembly {
+      // Retrieve expirationTime & ECDSA elements from certificate which is a 97 long bytes
+      // Certificate encoding format is: <expirationTime (32 bytes)>@<r (32 bytes)>@<s (32 bytes)>@<v (1 byte)>
+      e := mload(add(data,32))
+
+      r := mload(add(data, 0x40))
+      s := mload(add(data, 0x60))
+      v := byte(0, mload(add(data, 0x80)))
+    }
+    
+    // Certificate should not be expired
+    if (uint256(e) < block.timestamp) {
+      return false;
+    }
+
+    if (v < 27) {
+      v += 27;
+    }
+    
+
+    // Perform ecrecover to ensure message information corresponds to certificate
+    if (v == 27 || v == 28) {
+      // Extract payload and remove data argument
+      address to;
+      bytes32 msgData;
+      assembly{
+        to := mload(add(msgData,36))
+      }
+      // Pack and hash
+      bytes memory pack = abi.encodePacked(
+        address(this),
+        functionID,
+        to,
+        amount, // value
+        counter // nonce
+      );
+      bytes32 _hash = keccak256(pack);
+      emit Log(_hash);
+      // Check if certificate match expected transactions parameters
+      if (_certificateSigners[ecrecover(
+                            _hash                 
+                    , v, r, s)]) {
+        return true;
+      }
+    }
+    return false;
+  }
 
 
-  function methodHash(bytes4 funcSig, address _to, uint256 _value,uint256 exDate, uint256 _nonce)
+      function getCert(uint256 exDate,bytes memory data)
+        public
+        pure
+        returns (bytes memory)
+    {
+      return abi.encodePacked(exDate, data);
+      
+
+    }
+  
+  function methodHash(bytes4 funcSig, address _to, uint256 _value, uint256 _nonce)
         public
         view
         returns (bytes32)
     {
-      return keccak256(abi.encodePacked(address(this),funcSig, _to, _value,exDate, _nonce));
+      return keccak256(abi.encodePacked(address(this),funcSig, _to, _value, _nonce));
 
     }
 
- function getSigner(bytes32 _hash, bytes memory _signature)
-        private
-        pure
-        returns (address)
-    {
-        bytes32 r;
-        bytes32 s;
-        uint8 v;
-        if (_signature.length != 65) {
-            return address(0);
-        }
-        assembly {
-            r := mload(add(_signature, 32))
-            s := mload(add(_signature, 64))
-            v := byte(0, mload(add(_signature, 96)))
-        }
-        if (v < 27) {
-            v += 27;
-        }
-        if (v != 27 && v != 28) {
-            return address(0);
-        } else {
-            return
-                ecrecover(
-                    keccak256(
-                        abi.encodePacked(
-                            "\x19Ethereum Signed Message:\n32",
-                            _hash
-                        )
-                    ),
-                    v,
-                    r,
-                    s
-                );
-        }
-    }
 }
+
+
+
+
+contract SimpleToken is ERC20,CertificateController{
+
+    constructor(
+    )  ERC20("simple token", "ST") 
+    CertificateController(msg.sender,true)
+    {
+        
+        _mint(msg.sender, 100000000 ether);
+    }
+
+// "transferWithData(address,uint256,bytes)"
+
+
+    function transferWithData(
+        address to,
+        uint256 value,
+        bytes memory data
+    ) external 
+    isValidCertificate(data) 
+    {
+      
+        transfer(to,value);
+    }
+
+
+
+
+function getSelector(string calldata func) public pure returns(bytes4){
+return bytes4(keccak256(bytes(func)));
+}
+
+}
+
+
