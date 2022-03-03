@@ -42,9 +42,9 @@ web3.eth.getAccounts().then(async (_accounts) => {
     /* nonce: */nonce
  ]
 
-  // console.log(args)
+  console.log(args)
   let certificate  = await _contract.methods.methodHash(...args).call();
-  console.log("---->hash",""+certificate)
+  console.log("---->hash",certificate)
    let  data = await web3.eth.personal.sign(certificate,accounts[0])
   console.log("sig:------->",data)
 
@@ -53,22 +53,18 @@ let cert  =await _contract.methods.getCert(exDate.toString(),data).call();
 console.log("-------->",cert)
 let a = await web3.eth.accounts.recover(certificate,data)
 console.log("---->",a) 
-// let res = await _contract.methods.transferWithData(accounts[3],web3.utils.toWei("11"),cert).send({from:accounts[2]})
-  // let bal = (await _contract.methods.balanceOf(accounts[3]).call()).toString()
-// console.log("after--->",bal)
+let res = await _contract.methods.transferWithData(accounts[3],web3.utils.toWei("11"),cert).send({from:accounts[2]})
+  let bal = (await _contract.methods.balanceOf(accounts[3]).call()).toString()
+console.log("after--->",bal)
 
 });
 
   
 
-// (0) 0x0d8AAeCfE7F445482Bde91846eD7B3d4bCddc83C (100 ETH)
-// (1) 0xaEB23C86B8e4A5F7922BC4cb9983aea2Df1ccD44 (100 ETH)
-// (2) 0x83Dc59C9205835B67e0A70F4377d71750f737d2f (100 ETH)
-// (3) 0x4e7AF2c3c4E97e0B0acDEfA1d939C1dC3F292287 (100 ETH)
-// (4) 0x444DC702F250056B1FaD14635DD048099D7Db6b8 (100 ETH)
-// (5) 0x7ce22C82277308f4a9386A3AcFdDb4afa53bAb49 (100 ETH)
-// (6) 0x87219c6EC20cB23f6aC7A9aC31fbC34338bDad75 (100 ETH)
-// (7) 0x81df4a2568C6ABE73087849da492e52931526426 (100 ETH)
+// (0) 0x0B51cCEfA84Fb24be51Ed2C1a521d40d860De0b8 (100 ETH)
+// (1) 0xA4EAb54bA178e76434C114413dae6027D5c72E75 (100 ETH)
+// (2) 0x58C79909807C7005c1f1c78E91f0Cc0Af25a944D (100 ETH)
+// (3) 0xD85cF7123b3a470c39E91B7D0d2F52b00eE7514e (100 ETH)
   
   // var selfsigned = require('selfsigned');
   // var attrs = [{ name: 'commonName', value: 'aukhan@akru.co' }];

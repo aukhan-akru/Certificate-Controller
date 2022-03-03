@@ -29,8 +29,6 @@ contract CertificateController{
     _certificateControllerActivated = activated;
   }
 
-  event Log(bytes32 hash,address signer);
-  event Args(bytes4 funcSig, address _to, uint256 _value, uint256 _nonce);
   /**
    * @dev Modifier to protect methods with certificate control
    */
@@ -122,7 +120,7 @@ contract CertificateController{
     bytes4 functionID
   )
     internal
-    
+    view
     returns(bool)
   {
     uint256 counter = _checkCount[msg.sender];
@@ -167,14 +165,14 @@ contract CertificateController{
       }
       // Pack and hash
     bytes32 _hash =  methodHash(functionID, to,amount, counter);
-      address _signer = ecrecover(keccak256(
+   
+      // Check if certificate match expected transactions parameters
+      if (_certificateSigners[ecrecover(keccak256(
                         abi.encodePacked(
                             "\x19Ethereum Signed Message:\n32",
                             _hash
                         )
-                    ), v, r, s);
-      // Check if certificate match expected transactions parameters
-      if (_certificateSigners[_signer]) {
+                    ), v, r, s)]) {
         return true;
       }
     }
