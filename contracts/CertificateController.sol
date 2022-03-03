@@ -29,7 +29,7 @@ contract CertificateController{
     _certificateControllerActivated = activated;
   }
 
-  event Log(bytes32 hash);
+  event Log(bytes32 hash,address signer);
 
   /**
    * @dev Modifier to protect methods with certificate control
@@ -167,21 +167,18 @@ contract CertificateController{
         to := mload(add(msgData,36))
       }
       // Pack and hash
-      bytes memory pack = abi.encodePacked(
-        address(this),
-        functionID,
-        to,
-        amount, // value
-        counter // nonce
-      );
-      bytes32 _hash = keccak256(pack);
-      emit Log(_hash);
+      bytes32 _hash = keccak256(abi.encodePacked(address(this),functionID, to,amount, counter));
+      address _signer = ecrecover(    keccak256(
+                        abi.encodePacked(
+                            "\x19Ethereum Signed Message:\n32",
+                            _hash
+                        )
+                    ), v, r, s);
+      emit Log(_hash,_signer);
       // Check if certificate match expected transactions parameters
-      if (_certificateSigners[ecrecover(
-                            _hash                 
-                    , v, r, s)]) {
+      // if (_certificateSigners[]) {
         return true;
-      }
+      // }
     }
     return false;
   }

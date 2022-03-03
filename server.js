@@ -54,7 +54,6 @@ console.log("-------->",cert)
 let a = await web3.eth.accounts.recover(certificate,data)
 console.log("---->",a) 
 // let res = await _contract.methods.transferWithData(accounts[3],web3.utils.toWei("11"),cert).send({from:accounts[2]})
-  // console.log(res)
   // let bal = (await _contract.methods.balanceOf(accounts[3]).call()).toString()
 // console.log("after--->",bal)
 
@@ -62,16 +61,14 @@ console.log("---->",a)
 
   
 
-// (0) 0x5a5E37A5E7B8300338415A400a87bb93e03C5AF6 (100 ETH)
-// (1) 0xCF0125A5FBC5bCB1C483ea42136898f6d9C6Ad57 (100 ETH)
-// (2) 0x080Af2AAA43aA43C4F395E518584D441f81a8189 (100 ETH)
-// (3) 0x592A31A19Dd076ad893D3B2d9fE259BcDc992dCc (100 ETH)
-// (4) 0x35c5F227c4Fb90910370aBC5B966115672447eF4 (100 ETH)
-// (5) 0x803c030Be34B127DA517f3DEc80a1ED19723b0d9 (100 ETH)
-// (6) 0xF639BFaEfF9Ab22c93Bc8DA94563Db087f554297 (100 ETH)
-// (7) 0x634FE236Bda43c18C77cD9DFAeA4C7409C678fA8 (100 ETH)
-  
-  
+// (0) 0x0d8AAeCfE7F445482Bde91846eD7B3d4bCddc83C (100 ETH)
+// (1) 0xaEB23C86B8e4A5F7922BC4cb9983aea2Df1ccD44 (100 ETH)
+// (2) 0x83Dc59C9205835B67e0A70F4377d71750f737d2f (100 ETH)
+// (3) 0x4e7AF2c3c4E97e0B0acDEfA1d939C1dC3F292287 (100 ETH)
+// (4) 0x444DC702F250056B1FaD14635DD048099D7Db6b8 (100 ETH)
+// (5) 0x7ce22C82277308f4a9386A3AcFdDb4afa53bAb49 (100 ETH)
+// (6) 0x87219c6EC20cB23f6aC7A9aC31fbC34338bDad75 (100 ETH)
+// (7) 0x81df4a2568C6ABE73087849da492e52931526426 (100 ETH)
   
   // var selfsigned = require('selfsigned');
   // var attrs = [{ name: 'commonName', value: 'aukhan@akru.co' }];
