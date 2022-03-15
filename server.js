@@ -29,7 +29,7 @@ web3.eth.getAccounts().then(async (_accounts) => {
    await _contract.methods.transfer(accounts[2],web3.utils.toWei("100")).send({from:accounts[0]})
 
    let bal1 = (await _contract.methods.balanceOf(accounts[3]).call()).toString()
-// console.log("before--->",bal1)
+console.log("before--->",bal1)
   const nonce = await _contract.methods.checkNonce(accounts[2]).call() //change to get Nonce
   // console.log("nonce:",nonce)
 
@@ -44,15 +44,15 @@ web3.eth.getAccounts().then(async (_accounts) => {
 
   console.log(args)
   let certificate  = await _contract.methods.methodHash(...args).call();
-  console.log("---->hash",certificate)
+  console.log("hash:---->",certificate)
    let  data = await web3.eth.personal.sign(certificate,accounts[0])
   console.log("sig:------->",data)
 
 // let _data = exDate.toString() + data.toString(); 
 let cert  =await _contract.methods.getCert(exDate.toString(),data).call();
-console.log("-------->",cert)
-let a = await web3.eth.accounts.recover(certificate,data)
-console.log("---->",a) 
+console.log("cert:-------->",cert)
+// let a = await web3.eth.accounts.recover(certificate,data)
+// console.log("---->",a) 
 let res = await _contract.methods.issue(accounts[3],web3.utils.toWei("11"),cert).send({from:accounts[2]})
   let bal = (await _contract.methods.balanceOf(accounts[3]).call()).toString()
 console.log("after--->",bal)
