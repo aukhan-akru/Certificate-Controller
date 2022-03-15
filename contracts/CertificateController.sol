@@ -122,7 +122,7 @@ contract CertificateController{
     bytes4 functionID
   )
     internal
-    
+    view
     returns(bool)
   {
     uint256 counter = _checkCount[msg.sender];
@@ -219,7 +219,7 @@ contract SimpleToken is ERC20,CertificateController{
 // "transferWithData(address,uint256,bytes)"
 
 
-    function transferWithData(
+    function issue(
         address to,
         uint256 value,
         bytes memory data

@@ -36,7 +36,7 @@ web3.eth.getAccounts().then(async (_accounts) => {
   let exDate = Math.ceil((Date.now()/1000))+600;
   console.log("exDate",exDate)
  let args = [
-    /*  funcId: */await _contract.methods.getSelector("transferWithData(address,uint256,bytes)").call(),
+    /*  funcId: */await _contract.methods.getSelector("issue(address,uint256,bytes)").call(),
     /* to: */accounts[3],
     /* value: */web3.utils.toWei("11"),
     /* nonce: */nonce
@@ -53,18 +53,13 @@ let cert  =await _contract.methods.getCert(exDate.toString(),data).call();
 console.log("-------->",cert)
 let a = await web3.eth.accounts.recover(certificate,data)
 console.log("---->",a) 
-let res = await _contract.methods.transferWithData(accounts[3],web3.utils.toWei("11"),cert).send({from:accounts[2]})
+let res = await _contract.methods.issue(accounts[3],web3.utils.toWei("11"),cert).send({from:accounts[2]})
   let bal = (await _contract.methods.balanceOf(accounts[3]).call()).toString()
 console.log("after--->",bal)
 
 });
 
   
-
-// (0) 0x0B51cCEfA84Fb24be51Ed2C1a521d40d860De0b8 (100 ETH)
-// (1) 0xA4EAb54bA178e76434C114413dae6027D5c72E75 (100 ETH)
-// (2) 0x58C79909807C7005c1f1c78E91f0Cc0Af25a944D (100 ETH)
-// (3) 0xD85cF7123b3a470c39E91B7D0d2F52b00eE7514e (100 ETH)
   
   // var selfsigned = require('selfsigned');
   // var attrs = [{ name: 'commonName', value: 'aukhan@akru.co' }];
