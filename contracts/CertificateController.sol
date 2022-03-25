@@ -168,4 +168,8 @@ contract CertificateController {
                 abi.encodePacked(address(this), funcSig, _to, _value, _nonce)
             );
     }
+
+    function getSelector(string calldata func) public pure returns (bytes4) {
+        return bytes4(keccak256(bytes(func)));
+    }
 }

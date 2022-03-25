@@ -20,7 +20,4 @@ contract SimpleToken is ERC20, CertificateController {
         transfer(to, value);
     }
 
-    function getSelector(string calldata func) public pure returns (bytes4) {
-        return bytes4(keccak256(bytes(func)));
-    }
 }
